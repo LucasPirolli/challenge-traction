@@ -1,0 +1,124 @@
+@import "../variables.scss";
+
+@keyframes moveDown {
+  0% {
+    transform: translateY(-100vh);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+.container-welcome {
+  position: relative;
+  background-color: #0161f4;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  overflow: hidden;
+
+  > .particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    > .particle {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background-color: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      animation: moveDown 10s linear infinite;
+
+      @for $i from 1 through 100 {
+        &.particle-#{$i} {
+          top: random(100) * 1%;
+          left: random(100) * 1%;
+          animation-duration: random(20) * 1.2s;
+        }
+      }
+    }
+  }
+
+  > .content {
+    position: relative;
+    text-align: center;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    > .greeting {
+      font-weight: 800;
+      font-size: 5rem;
+      color: $white;
+    }
+
+    > .description {
+      font-size: 1rem;
+      color: $white;
+
+      &.funny {
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+    }
+
+    > .btn-lets-start {
+      padding: 0.1em 0.25em;
+      height: 50px;
+      background-color: #18285c;
+      border: 1px solid #254193;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      margin-top: 60px;
+
+      > .name {
+        text-transform: uppercase;
+        font-weight: 500;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        bottom: 0.4rem;
+        width: 8.25rem;
+        height: 2.5rem;
+        background-color: #18285c;
+        border-radius: 4px;
+        font-size: 1rem;
+        color: #95afe7;
+        border: 1px solid #254193;
+        box-shadow: 0 0.4rem 0.1rem 0.019rem #254193;
+
+        &:hover {
+          transition: all 0.5s;
+          transform: translate(0, 0.4rem);
+          box-shadow: 0 0 0 0 #254193;
+        }
+
+        &:not(hover) {
+          transition: all 1s;
+        }
+      }
+    }
+  }
+
+  > .footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    > .copy {
+      font-size: 0.75rem;
+      color: #95afe7;
+      opacity: 0.8;
+      font-weight: 500;
+    }
+  }
+}
