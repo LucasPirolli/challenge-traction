@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 // Styles
-import "../styles/pages/welcome.scss";
+import "../assets/styles/pages/welcome.scss";
 
 const Welcome = () => {
   const navigate = useNavigate();
