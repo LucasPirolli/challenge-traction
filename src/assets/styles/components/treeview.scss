@@ -1,0 +1,19 @@
+.tree-view {
+  ul {
+    list-style-type: none;
+    margin-left: 20px;
+  }
+
+  li {
+    margin: 5px 0;
+    cursor: pointer;
+
+    &::before {
+      content: "• ";
+    }
+  }
+
+  li > ul {
+    margin-left: 20px;
+  }
+}
