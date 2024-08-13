@@ -1,6 +1,3 @@
-// React Hooks
-import { useState } from "react";
-
 // Functions
 import { useNavigate } from "react-router-dom";
 

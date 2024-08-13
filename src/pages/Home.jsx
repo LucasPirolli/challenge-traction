@@ -1,24 +1,27 @@
+// React Hooks
 import React, { useState } from "react";
+
+// My Components
+import Tabs from "../components/Tabs";
 import TreeView from "../components/TreeView/TreeView";
+import TopBar from "../components/Topbar";
+
+// Styles
+import "../assets/styles/pages/home.scss";
 
 const Home = () => {
   const [selectedDataset, setSelectedDataset] = useState("JaguarUnit");
 
   return (
-    <div className="app">
-      <header>
-        <h1>Company Asset Tree</h1>
-        <select
-          onChange={(e) => setSelectedDataset(e.target.value)}
-          value={selectedDataset}
-        >
-          <option value="JaguarUnit">Jaguar Unit</option>
-          <option value="TobiasUnit">Tobias Unit</option>
-          <option value="ApexUnit">Apex Unit</option>
-        </select>
-      </header>
-      <TreeView dataset={selectedDataset} />
-    </div>
+    <>
+      <TopBar />
+      <div className="container-home">
+        <Tabs onDatasetChange={setSelectedDataset} />
+        <div className="content">
+          <TreeView dataset={selectedDataset} />
+        </div>
+      </div>
+    </>
   );
 };
 

@@ -1,0 +1,20 @@
+@import "../variables.scss";
+
+.content-topbar {
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: $main-blue;
+  position: sticky;
+  top: 0px;
+  height: 60px;
+  width: 100%;
+
+  > .container-logo {
+    height: 100%;
+    align-items: center;
+    display: flex;
+    padding-left: 12px;
+  }
+}

@@ -1,0 +1,13 @@
+.container-home {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 104px);
+  > .content {
+    display: flex;
+    width: 100%;
+    > .tree-view {
+      width: 30%;
+    }
+  }
+}

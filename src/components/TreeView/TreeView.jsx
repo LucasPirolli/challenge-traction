@@ -6,6 +6,7 @@ const TreeView = ({ dataset }) => {
   const [locations, setLocations] = useState([]);
   const [assets, setAssets] = useState([]);
   const [treeData, setTreeData] = useState(null);
+  const [expandedNodes, setExpandedNodes] = useState(new Set());
 
   const buildTree = (locations, assets) => {
     const locationMap = {};
@@ -74,23 +75,54 @@ const TreeView = ({ dataset }) => {
   const getItemIcon = (item) => {
     if (item.sensorType) {
       return (
-        <Icon name="component" width="20" height="20" viewBox="0 0 20 20" />
+        <Icon name="component" width="17" height="17" viewBox="0 0 21 21" />
       );
     } else if (item.parentId && !item.sensorType) {
-      return <Icon name="asset" width="20" height="20" viewBox="0 0 20 20" />;
+      return <Icon name="asset" width="17" height="17" viewBox="0 0 19 21" />;
     } else if (item.locationId || item.parentId === null) {
       return (
-        <Icon name="location" width="16" height="20" viewBox="0 0 16 20" />
+        <Icon name="location" width="17" height="17" viewBox="0 0 17 21" />
       );
     }
   };
 
+  const toggleNode = (id) => {
+    setExpandedNodes((prev) => {
+      const newExpanded = new Set(prev);
+      if (newExpanded.has(id)) {
+        newExpanded.delete(id);
+      } else {
+        newExpanded.add(id);
+      }
+      return newExpanded;
+    });
+  };
+
   const renderTree = (node) => {
+    const isExpanded = expandedNodes.has(node.id || node.name);
+    const hasChildren = node.children && node.children.length > 0;
+
     return (
       <ul key={node.id || node.name}>
         <li>
-          {getItemIcon(node)} {node.name}
-          {node.children && node.children.length > 0 && (
+          <div className="container-informations">
+            {hasChildren && (
+              <span
+                onClick={() => toggleNode(node.id || node.name)}
+                className={isExpanded ? "expanded" : ""}
+              >
+                <Icon
+                  name="arrow_right"
+                  width="10"
+                  height="10"
+                  viewBox="0 0 12 16"
+                  className={`arrow-icon ${isExpanded ? "expanded" : ""}`}
+                />
+              </span>
+            )}
+            {getItemIcon(node)} {node.name}
+          </div>
+          {isExpanded && node.children && node.children.length > 0 && (
             <ul>{node.children.map((child) => renderTree(child))}</ul>
           )}
         </li>
@@ -127,10 +159,24 @@ const TreeView = ({ dataset }) => {
   }, [locations, assets]);
 
   return (
-    <div className="tree-view">
-      <h2>{dataset} Asset Tree</h2>
-      {treeData ? renderTree(treeData) : <p>Loading...</p>}
-    </div>
+    <>
+      <section className="container-tree-view">
+        <div className="container-filters">
+          <input type="text" className="input" placeholder="Typing..." />
+          <button className="btn-filter sensor">
+            <Icon name="ray" width="13" height="15" viewBox="0 0 13 15" />
+            Power Sensor
+          </button>
+          <button className="btn-filter sensor">
+            <Icon name="critical" width="14" height="14" viewBox="0 0 14 14" />
+            Critical
+          </button>
+        </div>
+        <div className="tree-view">
+          {treeData ? renderTree(treeData) : <p>Loading...</p>}
+        </div>
+      </section>
+    </>
   );
 };
 
