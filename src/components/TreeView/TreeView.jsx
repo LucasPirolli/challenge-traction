@@ -1,6 +1,12 @@
+// React Hooks
 import React, { useState, useEffect } from "react";
-import "../../assets/styles/components/treeview.scss";
+
+// My Components
 import Icon from "../Icons";
+import Loader from "../Loader";
+
+// Style
+import "../../assets/styles/components/treeview.scss";
 
 const TreeView = ({ dataset }) => {
   const [locations, setLocations] = useState([]);
@@ -8,9 +14,15 @@ const TreeView = ({ dataset }) => {
   const [treeData, setTreeData] = useState(null);
   const [expandedNodes, setExpandedNodes] = useState(new Set());
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sensorFilter, setSensorFilter] = useState("all");
+  const [noResults, setNoResults] = useState(false);
+
   const buildTree = (locations, assets) => {
     const locationMap = {};
     const assetMap = {};
+    const firstLevelNodes = new Set();
 
     locations.forEach((location) => {
       location.children = [];
@@ -60,14 +72,18 @@ const TreeView = ({ dataset }) => {
     Object.values(locationMap).forEach((location) => {
       if (!location.parentId) {
         root.children.push(location);
+        firstLevelNodes.add(location.id);
       }
     });
 
     Object.values(assetMap).forEach((asset) => {
       if (!asset.locationId && !asset.parentId) {
         root.children.push(asset);
+        firstLevelNodes.add(asset.id);
       }
     });
+
+    setExpandedNodes(new Set([...firstLevelNodes, root.name]));
 
     return root;
   };
@@ -86,6 +102,19 @@ const TreeView = ({ dataset }) => {
     }
   };
 
+  const getItemIconStatus = (item) => {
+    if (item.sensorType === "energy" && item.status === "operating") {
+      return <Icon name="bold" width="9" height="12" viewBox="0 0 9 12" />;
+    } else if (item.status === "operating") {
+      return (
+        <Icon name="operating_icon" width="8" height="9" viewBox="0 0 8 9" />
+      );
+    } else if (item.status === "alert") {
+      return <Icon name="alert_icon" width="8" height="9" viewBox="0 0 8 9" />;
+    }
+    return null;
+  };
+
   const toggleNode = (id) => {
     setExpandedNodes((prev) => {
       const newExpanded = new Set(prev);
@@ -98,9 +127,35 @@ const TreeView = ({ dataset }) => {
     });
   };
 
+  const matchesFilters = (node, term, statusFilter, sensorFilter) => {
+    const matchesSearch = node.name.toLowerCase().includes(term.toLowerCase());
+
+    const matchesCriticalStatus =
+      statusFilter === "all" || node.status === statusFilter;
+
+    const matchesSensorEnergy =
+      sensorFilter === "all" || node.sensorType === sensorFilter;
+
+    if (matchesSearch && matchesCriticalStatus && matchesSensorEnergy) {
+      return true;
+    }
+
+    if (node.children) {
+      return node.children.some((child) =>
+        matchesFilters(child, term, statusFilter, sensorFilter)
+      );
+    }
+
+    return false;
+  };
+
   const renderTree = (node) => {
     const isExpanded = expandedNodes.has(node.id || node.name);
     const hasChildren = node.children && node.children.length > 0;
+
+    if (!matchesFilters(node, searchTerm, statusFilter, sensorFilter)) {
+      return null;
+    }
 
     return (
       <ul key={node.id || node.name}>
@@ -120,7 +175,9 @@ const TreeView = ({ dataset }) => {
                 />
               </span>
             )}
-            {getItemIcon(node)} {node.name}
+            {getItemIcon(node)}
+            {node.name}
+            {getItemIconStatus(node)}
           </div>
           {isExpanded && node.children && node.children.length > 0 && (
             <ul>{node.children.map((child) => renderTree(child))}</ul>
@@ -158,22 +215,75 @@ const TreeView = ({ dataset }) => {
     }
   }, [locations, assets]);
 
+  useEffect(() => {
+    setSearchTerm("");
+    setStatusFilter("all");
+    setSensorFilter("all");
+    setNoResults(false);
+  }, [dataset]);
+
+  useEffect(() => {
+    if (treeData) {
+      const noMatch = !matchesFilters(
+        treeData,
+        searchTerm,
+        statusFilter,
+        sensorFilter
+      );
+      setNoResults(noMatch);
+    } else {
+      setNoResults(false);
+    }
+  }, [searchTerm, statusFilter, sensorFilter, treeData]);
+
   return (
     <>
       <section className="container-tree-view">
         <div className="container-filters">
-          <input type="text" className="input" placeholder="Typing..." />
-          <button className="btn-filter sensor">
+          <input
+            type="text"
+            className="input"
+            placeholder="Typing..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <button
+            className={`btn-filter sensor ${
+              sensorFilter === "energy" ? "active" : ""
+            }`}
+            onClick={() =>
+              setSensorFilter((prevFilter) =>
+                prevFilter === "energy" ? "all" : "energy"
+              )
+            }
+          >
             <Icon name="ray" width="13" height="15" viewBox="0 0 13 15" />
             Power Sensor
           </button>
-          <button className="btn-filter sensor">
+          <button
+            className={`btn-filter critical ${
+              statusFilter === "alert" ? "active" : ""
+            }`}
+            onClick={() =>
+              setStatusFilter((prevFilter) =>
+                prevFilter === "alert" ? "all" : "alert"
+              )
+            }
+          >
             <Icon name="critical" width="14" height="14" viewBox="0 0 14 14" />
             Critical
           </button>
         </div>
         <div className="tree-view">
-          {treeData ? renderTree(treeData) : <p>Loading...</p>}
+          {noResults ? (
+            <p className="no-results">
+              Nenhum resultado encontrado para esse filtro
+            </p>
+          ) : treeData ? (
+            renderTree(treeData)
+          ) : (
+            <Loader />
+          )}
         </div>
       </section>
     </>

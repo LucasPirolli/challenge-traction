@@ -15,6 +15,7 @@
     font-family: "Roboto", sans-serif;
     transition: 0.3s ease all;
     border-radius: 4px;
+    user-select: none;
     &.active {
       background-color: rgba(1, 97, 244, 0.15);
       color: #141414;

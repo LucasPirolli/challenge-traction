@@ -40,7 +40,11 @@
       gap: 5px;
       font-size: 0.75rem;
       transition: 0.3s ease all;
+      user-select: none;
       &:hover {
+        border-color: $main-blue;
+      }
+      &.active {
         color: $white;
         background-color: $main-blue;
         border-color: $main-blue;
@@ -97,6 +101,12 @@
 
     li > ul {
       margin-left: 15px;
+    }
+
+    > .no-results {
+      font-size: 0.75rem;
+      color: #141414;
+      font-weight: 500;
     }
   }
 }
