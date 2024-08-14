@@ -276,9 +276,7 @@ const TreeView = ({ dataset }) => {
         </div>
         <div className="tree-view">
           {noResults ? (
-            <p className="no-results">
-              Nenhum resultado encontrado para esse filtro
-            </p>
+            <p className="no-results">No results found</p>
           ) : treeData ? (
             renderTree(treeData)
           ) : (
