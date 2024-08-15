@@ -19,6 +19,9 @@ const TreeView = ({ dataset }) => {
   const [sensorFilter, setSensorFilter] = useState("all");
   const [noResults, setNoResults] = useState(false);
 
+  const [selectedComponent, setSelectedComponent] = useState(null);
+  const [componentImageUrl, setComponentImageUrl] = useState("");
+
   const buildTree = (locations, assets) => {
     const locationMap = {};
     const assetMap = {};
@@ -115,6 +118,11 @@ const TreeView = ({ dataset }) => {
     return null;
   };
 
+  const generateRandomImageUrl = () => {
+    const randomColor = Math.floor(Math.random() * 10).toString(16);
+    return `https://dummyimage.com/336x226/${randomColor}/fff&text=Tractian`;
+  };
+
   const toggleNode = (id) => {
     setExpandedNodes((prev) => {
       const newExpanded = new Set(prev);
@@ -125,6 +133,12 @@ const TreeView = ({ dataset }) => {
       }
       return newExpanded;
     });
+  };
+
+  const handleComponentClick = (component) => {
+    setSelectedComponent(component);
+    const randomImageUrl = generateRandomImageUrl();
+    setComponentImageUrl(randomImageUrl);
   };
 
   const matchesFilters = (node, term, statusFilter, sensorFilter) => {
@@ -157,13 +171,21 @@ const TreeView = ({ dataset }) => {
       return null;
     }
 
+    const isSelected = selectedComponent && selectedComponent.id === node.id;
+
     return (
       <ul key={node.id || node.name}>
         <li>
-          <div className="container-informations">
+          <div
+            className={`container-informations ${isSelected ? "selected" : ""}`}
+            onClick={() => node.sensorType && handleComponentClick(node)}
+          >
             {hasChildren && (
               <span
-                onClick={() => toggleNode(node.id || node.name)}
+                onClick={(e) => {
+                  e.stopPropagation(); // Evita que o clique expanda/colapse ao selecionar um componente
+                  toggleNode(node.id || node.name);
+                }}
                 className={isExpanded ? "expanded" : ""}
               >
                 <Icon
@@ -284,6 +306,43 @@ const TreeView = ({ dataset }) => {
           )}
         </div>
       </section>
+
+      {selectedComponent && (
+        <section className="component-details">
+          <h3 className="title">
+            {selectedComponent.name} {getItemIconStatus(selectedComponent)}
+          </h3>
+          <div className="container-infos">
+            <figure className="container-image">
+              <img
+                src={componentImageUrl}
+                alt={`Image of ${selectedComponent.name}`}
+                className="image"
+              />
+            </figure>
+            <section className="content-infos">
+              {selectedComponent.id && (
+                <div className="content-text">
+                  <label className="label">Identifier</label>
+                  <span className="value">{selectedComponent.id}</span>
+                </div>
+              )}
+              {selectedComponent.sensorType && (
+                <div className="content-text">
+                  <label className="label">Sensor Type</label>
+                  <span className="value">
+                    {selectedComponent.sensorType === "energy"
+                      ? "Energy"
+                      : selectedComponent.sensorType === "vibration"
+                      ? "Vibration"
+                      : ""}
+                  </span>
+                </div>
+              )}
+            </section>
+          </div>
+        </section>
+      )}
     </>
   );
 };
